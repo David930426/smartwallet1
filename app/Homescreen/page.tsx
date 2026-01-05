@@ -1,62 +1,85 @@
-import React from 'react';
-import { 
-  Wallet, 
-  MoreHorizontal, 
-  ArrowDownLeft, 
-  ArrowUpRight, 
-  Plus, 
-  ChevronDown 
-} from 'lucide-react';
+"use client"
+// import React from 'react';
+// import { getBalanceSummary, getRecentTransactions } from "@/lib/data";
+import { getBalanceSummary, getRecentTransactions } from "@/lib/data";
+import {
+  Wallet,
+  MoreHorizontal,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Plus,
+  ChevronDown,
+} from "lucide-react";
+import { useEffect } from "react";
+import { useState } from "react";
 
 // 1. Define the interface for the transaction data
-interface Transaction {
+export interface Transaction {
   id: number;
-  type: 'income' | 'expense';
+  type: "income" | "expense";
   amount: number;
-  category: string;
+  category_name: string;
   icon: string;
+}
+
+export interface Summary {
+  totalIncome: number;
+  totalExpense: number;
+  balance: number;
 }
 
 export default function HomeScreen() {
   // Static data from your snippet
-  const totalBalance = 90000;
   const totalIncome = 20890;
   const totalExpense = 8890;
+  const [summary, setSummary] = useState<null | Summary>(null);
+  const [transactions, setTransaction] = useState<null | Transaction[]>(null);
+  // const summary = await getBalanceSummary('U001'); // ID contoh
+  // const transactions = await getRecentTransactions('U001');
+  useEffect(() => {
+    const income = async () => {
+      const getSummary = await getBalanceSummary("U001");
+      const getTransaction = await getRecentTransactions("U001");
+      setSummary(getSummary);
+      setTransaction(getTransaction);
+    };
+    income();
+  }, []);
 
   // 2. Mock data to make the map function work
-  const transactions: Transaction[] = [
-    {
-      id: 1,
-      type: 'expense',
-      amount: 150,
-      category: 'Food & Drinks',
-      icon: '🍔',
-    },
-    {
-      id: 2,
-      type: 'income',
-      amount: 5000,
-      category: 'Salary',
-      icon: '💼',
-    },
-    {
-      id: 3,
-      type: 'expense',
-      amount: 320,
-      category: 'Transportation',
-      icon: '🚕',
-    },
-    {
-      id: 4,
-      type: 'expense',
-      amount: 1200,
-      category: 'Shopping',
-      icon: '🛍️',
-    },
-  ];
+  // const transactions: Transaction[] = [
+  //   {
+  //     id: 1,
+  //     type: 'expense',
+  //     amount: 150,
+  //     category: 'Food & Drinks',
+  //     icon: '🍔',
+  //   },
+  //   {
+  //     id: 2,
+  //     type: 'income',
+  //     amount: 5000,
+  //     category: 'Salary',
+  //     icon: '💼',
+  //   },
+  //   {
+  //     id: 3,
+  //     type: 'expense',
+  //     amount: 320,
+  //     category: 'Transportation',
+  //     icon: '🚕',
+  //   },
+  //   {
+  //     id: 4,
+  //     type: 'expense',
+  //     amount: 1200,
+  //     category: 'Shopping',
+  //     icon: '🛍️',
+  //   },
+  // ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 p-4 pb-24">
+    <div className="min-h-screen bg-linear-to-br from-emerald-500 via-emerald-600 to-teal-700 p-4 pb-24">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -74,23 +97,23 @@ export default function HomeScreen() {
 
       {/* Balance Card */}
       <div className="bg-white rounded-3xl p-6 shadow-2xl shadow-black/10 mb-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-100 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 opacity-60" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-teal-100 to-transparent rounded-full translate-y-1/2 -translate-x-1/2 opacity-60" />
-        
+        <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-emerald-100 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 opacity-60" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-linear-to-tr from-teal-100 to-transparent rounded-full translate-y-1/2 -translate-x-1/2 opacity-60" />
+
         <div className="relative">
           <div className="flex items-center justify-between mb-4">
             <p className="text-gray-500 text-sm font-medium">Total Balance</p>
-            <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 bg-linear-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
               <span className="text-white text-lg">💰</span>
             </div>
           </div>
-          
+
           <h2 className="text-4xl font-bold text-gray-900 mb-6 tracking-tight">
-            NT${totalBalance.toLocaleString()}
+            NT${summary?.balance?.toLocaleString() || 0}
           </h2>
-          
+
           <div className="flex gap-3">
-            <div className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl p-4 shadow-lg shadow-emerald-500/30">
+            <div className="flex-1 bg-linear-to-r from-emerald-500 to-emerald-600 rounded-2xl p-4 shadow-lg shadow-emerald-500/30">
               <div className="flex items-center gap-2 mb-1">
                 <ArrowDownLeft size={16} className="text-emerald-200" />
                 <span className="text-emerald-100 text-xs font-medium">
@@ -101,8 +124,8 @@ export default function HomeScreen() {
                 NT${totalIncome.toLocaleString()}
               </p>
             </div>
-            
-            <div className="flex-1 bg-gradient-to-r from-rose-500 to-pink-600 rounded-2xl p-4 shadow-lg shadow-rose-500/30">
+
+            <div className="flex-1 bg-linear-to-r from-rose-500 to-pink-600 rounded-2xl p-4 shadow-lg shadow-rose-500/30">
               <div className="flex items-center gap-2 mb-1">
                 <ArrowUpRight size={16} className="text-rose-200" />
                 <span className="text-rose-100 text-xs font-medium">
@@ -116,7 +139,7 @@ export default function HomeScreen() {
           </div>
 
           {/* Add Button */}
-          <button className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40 hover:scale-110 transition-transform">
+          <button className="absolute right-4 top-2/5 -translate-y-1/2 w-12 h-12 bg-linear-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40 hover:scale-110 transition-transform">
             <Plus className="text-white" size={24} />
           </button>
         </div>
@@ -136,38 +159,19 @@ export default function HomeScreen() {
 
       {/* Transactions */}
       <div className="space-y-3">
-        {transactions.map((tx, index) => (
+        {transactions ? transactions.map((tx, index) => (
           <div
-            key={tx.id}
-            className="bg-white rounded-2xl p-4 shadow-lg shadow-black/5 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+            key={index}
+            className="bg-white rounded-2xl p-4 shadow-lg shadow-black/5 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 text-gray-800"
             style={{ animationDelay: `${index * 50}ms` }}
           >
-            <div
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
-                tx.type === "income"
-                  ? "bg-gradient-to-br from-emerald-100 to-teal-100"
-                  : "bg-gradient-to-br from-rose-100 to-pink-100"
-              }`}
-            >
-              {tx.icon}
-            </div>
+            <div className="text-xl">{tx.icon}</div>
             <div className="flex-1">
-              <p className="font-bold text-gray-900">
-                NT${tx.amount.toLocaleString()}
-              </p>
-              <p className="text-gray-500 text-sm">{tx.category}</p>
-            </div>
-            <div
-              className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                tx.type === "income"
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-rose-100 text-rose-700"
-              }`}
-            >
-              {tx.type === "income" ? "Income" : "Expense"}
+              <p className="font-bold">NT${tx.amount.toLocaleString()}</p>
+              <p className="text-sm">{tx.category_name}</p>
             </div>
           </div>
-        ))}
+        )) : ""}
       </div>
     </div>
   );

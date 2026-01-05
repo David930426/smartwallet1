@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import Navbar from "./components/navbar";
 import { useState } from "react";
 import HomeScreen from "./Homescreen/page";
@@ -11,7 +10,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("home");
 
   return (
-    <div className="max-w-[430px] mx-auto min-h-screen bg-gray-100 relative overflow-hidden">
+    <div className="max-w-107.5 mx-auto min-h-screen bg-gray-100 relative overflow-hidden">
       {/* Screen Content */}
       <div className="transition-all duration-300">
         {activeTab === "home" && <HomeScreen />}
