@@ -2,7 +2,7 @@
 import Navbar from "./components/navbar";
 import { useState } from "react";
 import HomeScreen from "./homescreen/page";
-import ReportScreen from "./Report/page";
+import ReportScreen from "./report/page";
 import StatsScreen from "./stats/page";
 import MoreScreen from "./more/page";
 

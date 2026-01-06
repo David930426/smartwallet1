@@ -1,4 +1,5 @@
 "use client"
+import { Icon } from "@/components/icon";
 // import React from 'react';
 // import { getBalanceSummary, getRecentTransactions } from "@/lib/data";
 import { getBalanceSummary, getRecentTransactions } from "@/lib/data";
@@ -15,27 +16,22 @@ import { useState } from "react";
 
 // 1. Define the interface for the transaction data
 export interface Transaction {
-  id: number;
-  type: "income" | "expense";
+  transaction_id: number;
+  transaction_type: "Income" | "Expense";
   amount: number;
   category_name: string;
   icon: string;
 }
 
 export interface Summary {
-  totalIncome: number;
-  totalExpense: number;
+  total_income: number;
+  total_expense: number;
   balance: number;
 }
 
 export default function HomeScreen() {
-  // Static data from your snippet
-  const totalIncome = 20890;
-  const totalExpense = 8890;
   const [summary, setSummary] = useState<null | Summary>(null);
   const [transactions, setTransaction] = useState<null | Transaction[]>(null);
-  // const summary = await getBalanceSummary('U001'); // ID contoh
-  // const transactions = await getRecentTransactions('U001');
   useEffect(() => {
     const income = async () => {
       const getSummary = await getBalanceSummary("U001");
@@ -89,7 +85,7 @@ export default function HomeScreen() {
                 </span>
               </div>
               <p className="text-white font-bold text-lg">
-                NT${totalIncome.toLocaleString()}
+                NT${summary?.total_income?.toLocaleString()}
               </p>
             </div>
 
@@ -101,7 +97,7 @@ export default function HomeScreen() {
                 </span>
               </div>
               <p className="text-white font-bold text-lg">
-                NT${totalExpense.toLocaleString()}
+                NT${summary?.total_expense?.toLocaleString()}
               </p>
             </div>
           </div>
@@ -129,18 +125,18 @@ export default function HomeScreen() {
       <div className="space-y-3">
         {transactions ? transactions.map((tx, index) => (
           <div
-            key={index}
+            key={tx.transaction_id}
             className="bg-white rounded-2xl p-4 shadow-lg shadow-black/5 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
             style={{ animationDelay: `${index * 50}ms` }}
           >
             <div
               className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
-                tx.type === "income"
+                tx.transaction_type === "Income"
                   ? "bg-linear-to-br from-emerald-100 to-teal-100"
                   : "bg-linear-to-br from-rose-100 to-pink-100"
               }`}
             >
-              {tx.icon}
+              {Icon(tx.icon)}
             </div>
             <div className="flex-1">
               <p className="font-bold text-gray-900">
@@ -150,66 +146,17 @@ export default function HomeScreen() {
             </div>
             <div
               className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                tx.type === "income"
+                tx.transaction_type === "Income"
                   ? "bg-emerald-100 text-emerald-700"
                   : "bg-rose-100 text-rose-700"
               }`}
             >
-              {tx.type === "income" ? "Income" : "Expense"}
+              {tx.transaction_type === "Income" ? "Income" : "Expense"}
             </div>
           </div>
         )) : ""}
       </div>
-      {/* <div className="space-y-3">
-        {transactions ? transactions.map((tx, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-2xl p-4 shadow-lg shadow-black/5 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 text-gray-800"
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
-            <div className="text-xl">{tx.icon}</div>
-            <div className="flex-1">
-              <p className="font-bold">NT${tx.amount.toLocaleString()}</p>
-              <p className="text-sm">{tx.category_name}</p>
-            </div>
-          </div>
-        )) : ""}
-      </div> */}
     </div>
   );
 }
 
-{/* <div className="space-y-3">
-        {transactions.map((tx, index) => (
-          <div
-            key={tx.id}
-            className="bg-white rounded-2xl p-4 shadow-lg shadow-black/5 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
-            <div
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
-                tx.type === "income"
-                  ? "bg-gradient-to-br from-emerald-100 to-teal-100"
-                  : "bg-gradient-to-br from-rose-100 to-pink-100"
-              }`}
-            >
-              {tx.icon}
-            </div>
-            <div className="flex-1">
-              <p className="font-bold text-gray-900">
-                NT${tx.amount.toLocaleString()}
-              </p>
-              <p className="text-gray-500 text-sm">{tx.category}</p>
-            </div>
-            <div
-              className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                tx.type === "income"
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-rose-100 text-rose-700"
-              }`}
-            >
-              {tx.type === "income" ? "Income" : "Expense"}
-            </div>
-          </div>
-        ))}
-      </div> */}
