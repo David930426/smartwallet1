@@ -130,6 +130,40 @@ export default function HomeScreen() {
         {transactions ? transactions.map((tx, index) => (
           <div
             key={index}
+            className="bg-white rounded-2xl p-4 shadow-lg shadow-black/5 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+            style={{ animationDelay: `${index * 50}ms` }}
+          >
+            <div
+              className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
+                tx.type === "income"
+                  ? "bg-linear-to-br from-emerald-100 to-teal-100"
+                  : "bg-linear-to-br from-rose-100 to-pink-100"
+              }`}
+            >
+              {tx.icon}
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-gray-900">
+                NT${tx.amount.toLocaleString()}
+              </p>
+              <p className="text-gray-500 text-sm">{tx.category_name}</p>
+            </div>
+            <div
+              className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                tx.type === "income"
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "bg-rose-100 text-rose-700"
+              }`}
+            >
+              {tx.type === "income" ? "Income" : "Expense"}
+            </div>
+          </div>
+        )) : ""}
+      </div>
+      {/* <div className="space-y-3">
+        {transactions ? transactions.map((tx, index) => (
+          <div
+            key={index}
             className="bg-white rounded-2xl p-4 shadow-lg shadow-black/5 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 text-gray-800"
             style={{ animationDelay: `${index * 50}ms` }}
           >
@@ -140,7 +174,42 @@ export default function HomeScreen() {
             </div>
           </div>
         )) : ""}
-      </div>
+      </div> */}
     </div>
   );
 }
+
+{/* <div className="space-y-3">
+        {transactions.map((tx, index) => (
+          <div
+            key={tx.id}
+            className="bg-white rounded-2xl p-4 shadow-lg shadow-black/5 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+            style={{ animationDelay: `${index * 50}ms` }}
+          >
+            <div
+              className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
+                tx.type === "income"
+                  ? "bg-gradient-to-br from-emerald-100 to-teal-100"
+                  : "bg-gradient-to-br from-rose-100 to-pink-100"
+              }`}
+            >
+              {tx.icon}
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-gray-900">
+                NT${tx.amount.toLocaleString()}
+              </p>
+              <p className="text-gray-500 text-sm">{tx.category}</p>
+            </div>
+            <div
+              className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                tx.type === "income"
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "bg-rose-100 text-rose-700"
+              }`}
+            >
+              {tx.type === "income" ? "Income" : "Expense"}
+            </div>
+          </div>
+        ))}
+      </div> */}
