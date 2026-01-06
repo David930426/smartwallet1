@@ -46,38 +46,6 @@ export default function HomeScreen() {
     income();
   }, []);
 
-  // 2. Mock data to make the map function work
-  // const transactions: Transaction[] = [
-  //   {
-  //     id: 1,
-  //     type: 'expense',
-  //     amount: 150,
-  //     category: 'Food & Drinks',
-  //     icon: '🍔',
-  //   },
-  //   {
-  //     id: 2,
-  //     type: 'income',
-  //     amount: 5000,
-  //     category: 'Salary',
-  //     icon: '💼',
-  //   },
-  //   {
-  //     id: 3,
-  //     type: 'expense',
-  //     amount: 320,
-  //     category: 'Transportation',
-  //     icon: '🚕',
-  //   },
-  //   {
-  //     id: 4,
-  //     type: 'expense',
-  //     amount: 1200,
-  //     category: 'Shopping',
-  //     icon: '🛍️',
-  //   },
-  // ];
-
   return (
     <div className="min-h-screen bg-linear-to-br from-emerald-500 via-emerald-600 to-teal-700 p-4 pb-24">
       {/* Header */}

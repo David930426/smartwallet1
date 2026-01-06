@@ -17,7 +17,7 @@ export default function NavBar({ activeTab, setActiveTab }: NavBarProps) {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-gray-100 px-2 py-2 z-50 max-w-[430px] mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-gray-100 px-2 py-2 z-50 max-w-107.5 mx-auto">
       <div className="flex justify-around items-center">
         {tabs.map((tab) => {
           const Icon = tab.icon;

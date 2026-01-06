@@ -1,7 +1,7 @@
 "use client";
 import Navbar from "./components/navbar";
 import { useState } from "react";
-import HomeScreen from "./Homescreen/page";
+import HomeScreen from "./homescreen/page";
 import ReportScreen from "./Report/page";
 import StatsScreen from "./stats/page";
 import MoreScreen from "./more/page";
