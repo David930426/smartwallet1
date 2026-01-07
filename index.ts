@@ -19,9 +19,9 @@ export interface City {
 }
 
 export interface Category {
-  category_id: number;
+  category_id: string;
   category_name: string;
-  category_type: "income" | "expense";
+  category_type: "Income" | "Expense";
   icon: string;
 }
 
@@ -76,6 +76,15 @@ export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
+}
+
+
+export interface CreateTransactionInput {
+  category_id: string;
+  amount: number;
+  transaction_type: "Income" | "Expense";
+  transaction_date: string;
+  description?: string;
 }
 
 export const CURRENT_USER_ID = 1;

@@ -1,18 +1,20 @@
-"use client"
+"use client";
 import { Icon } from "@/components/icon";
 // import React from 'react';
 // import { getBalanceSummary, getRecentTransactions } from "@/lib/data";
 import { getBalanceSummary, getRecentTransactions } from "@/lib/data";
+import { logout } from "@/lib/login";
 import {
   Wallet,
-  MoreHorizontal,
   ArrowDownLeft,
   ArrowUpRight,
   Plus,
   ChevronDown,
+  ArrowLeftSquareIcon,
 } from "lucide-react";
 import { useEffect } from "react";
 import { useState } from "react";
+import AddTransactionModal from "../components/addTransactionModal";
 
 // 1. Define the interface for the transaction data
 export interface Transaction {
@@ -32,15 +34,27 @@ export interface Summary {
 export default function HomeScreen() {
   const [summary, setSummary] = useState<null | Summary>(null);
   const [transactions, setTransaction] = useState<null | Transaction[]>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const fetchData = async () => {
+    const getSummary = await getBalanceSummary();
+    const getTransaction = await getRecentTransactions();
+    setSummary(getSummary);
+    setTransaction(getTransaction);
+  };
+
   useEffect(() => {
-    const income = async () => {
-      const getSummary = await getBalanceSummary("U001");
-      const getTransaction = await getRecentTransactions("U001");
-      setSummary(getSummary);
-      setTransaction(getTransaction);
-    };
-    income();
+    fetchData();
   }, []);
+
+  const handleAddClick = () => {
+    console.log("Opening modal");
+    setIsAddModalOpen(true);
+  };
+
+  const handleTransactionSuccess = () => {
+    fetchData(); // Refresh data after adding
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-emerald-500 via-emerald-600 to-teal-700 p-4 pb-24">
@@ -54,8 +68,13 @@ export default function HomeScreen() {
             My Wallet
           </h1>
         </div>
-        <button className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center hover:bg-white/30 transition-colors">
-          <MoreHorizontal className="text-white" size={20} />
+        <button
+          className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center hover:bg-red-500 hover:cursor-pointer transition-colors"
+          onClick={() => {
+            logout();
+          }}
+        >
+          <ArrowLeftSquareIcon className="text-white" size={20} />
         </button>
       </div>
 
@@ -103,7 +122,10 @@ export default function HomeScreen() {
           </div>
 
           {/* Add Button */}
-          <button className="absolute right-4 top-2/5 -translate-y-1/2 w-12 h-12 bg-linear-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40 hover:scale-110 transition-transform">
+          <button
+            onClick={handleAddClick}
+            className="absolute right-4 top-2/5 -translate-y-1/2 w-12 h-12 bg-linear-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40 hover:scale-110 transition-transform"
+          >
             <Plus className="text-white" size={24} />
           </button>
         </div>
@@ -123,39 +145,45 @@ export default function HomeScreen() {
 
       {/* Transactions */}
       <div className="space-y-3">
-        {transactions ? transactions.map((tx, index) => (
-          <div
-            key={tx.transaction_id}
-            className="bg-white rounded-2xl p-4 shadow-lg shadow-black/5 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
-            <div
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
-                tx.transaction_type === "Income"
-                  ? "bg-linear-to-br from-emerald-100 to-teal-100"
-                  : "bg-linear-to-br from-rose-100 to-pink-100"
-              }`}
-            >
-              {Icon(tx.icon)}
-            </div>
-            <div className="flex-1">
-              <p className="font-bold text-gray-900">
-                NT${tx.amount.toLocaleString()}
-              </p>
-              <p className="text-gray-500 text-sm">{tx.category_name}</p>
-            </div>
-            <div
-              className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                tx.transaction_type === "Income"
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-rose-100 text-rose-700"
-              }`}
-            >
-              {tx.transaction_type === "Income" ? "Income" : "Expense"}
-            </div>
-          </div>
-        )) : ""}
+        {transactions
+          ? transactions.map((tx, index) => (
+              <div
+                key={tx.transaction_id}
+                className="bg-white rounded-2xl p-4 shadow-lg shadow-black/5 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
+                    tx.transaction_type === "Income"
+                      ? "bg-linear-to-br from-emerald-100 to-teal-100"
+                      : "bg-linear-to-br from-rose-100 to-pink-100"
+                  }`}
+                >
+                  {Icon(tx.icon)}
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-gray-900">
+                    NT${tx.amount.toLocaleString()}
+                  </p>
+                  <p className="text-gray-500 text-sm">{tx.category_name}</p>
+                </div>
+                <div
+                  className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                    tx.transaction_type === "Income"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-rose-100 text-rose-700"
+                  }`}
+                >
+                  {tx.transaction_type === "Income" ? "Income" : "Expense"}
+                </div>
+              </div>
+            ))
+          : ""}
       </div>
+      <AddTransactionModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={handleTransactionSuccess}     />
     </div>
   );
 }

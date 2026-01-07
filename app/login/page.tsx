@@ -6,6 +6,7 @@ import { useActionState } from "react";
 export default function Login() {
   const initialState:InitialState = { message: "" };
   const [state, submitAction] = useActionState(loginAction, initialState);
+  
   return (
     <div className="max-w-107.5 mx-auto min-h-screen bg-gray-100 relative overflow-hidden">
       <div className="min-h-screen bg-linear-to-br from-emerald-500 via-emerald-600 to-teal-700 flex p-5 flex-col items-center justify-center">

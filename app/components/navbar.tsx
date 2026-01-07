@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Home, FileText, BarChart3, MoreHorizontal } from "lucide-react";
 
 interface NavBarProps {
