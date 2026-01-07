@@ -33,7 +33,7 @@ export default function ReportScreen() {
         ]);
 
         if (!resExp.ok || !resCity.ok) {
-          throw new Error("Gagal mengambil data dari server");
+          throw new Error("Fail take data from server");
         }
 
         const dataExp = await resExp.json();
@@ -43,7 +43,7 @@ export default function ReportScreen() {
         setCityComparison(dataCity);
       } catch (err) {
         console.error(err);
-        setError("Gagal koneksi ke Database. Pastikan server nyala.");
+        setError("Fail connect to database. Make sure the server is on");
       } finally {
         setLoading(false);
       }

@@ -1,4 +1,5 @@
 "use client";
+import AddTransactionButton from "@/components/add-form";
 import { Icon } from "@/components/icon";
 // import React from 'react';
 // import { getBalanceSummary, getRecentTransactions } from "@/lib/data";
@@ -8,7 +9,6 @@ import {
   Wallet,
   ArrowDownLeft,
   ArrowUpRight,
-  Plus,
   ChevronDown,
   ArrowLeftSquareIcon,
 } from "lucide-react";
@@ -109,9 +109,7 @@ export default function HomeScreen() {
           </div>
 
           {/* Add Button */}
-          <button className="absolute right-4 top-2/5 -translate-y-1/2 w-12 h-12 bg-linear-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40 hover:scale-110 transition-transform">
-            <Plus className="text-white" size={24} />
-          </button>
+          <AddTransactionButton />
         </div>
       </div>
 
