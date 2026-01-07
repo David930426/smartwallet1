@@ -38,7 +38,7 @@ export default function ReportScreen() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 p-4 pb-24">
+    <div className="min-h-screen bg-linear-to-br from-emerald-500 via-emerald-600 to-teal-700 p-4 pb-24">
       {/* Header */}
       <div className="text-center mb-6 pt-2">
         <h1 className="text-2xl font-bold text-white tracking-tight">
@@ -107,7 +107,7 @@ export default function ReportScreen() {
 
       {/* Stats Cards */}
       <div className="flex gap-3 mb-6">
-        <div className="flex-1 bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-4 shadow-lg">
+        <div className="flex-1 bg-linear-to-br from-rose-500 to-pink-600 rounded-2xl p-4 shadow-lg">
           <div className="flex items-center gap-2 mb-2">
             <TrendingDown size={18} className="text-rose-200" />
             <span className="text-rose-100 text-sm font-medium">Spendings</span>
@@ -118,7 +118,7 @@ export default function ReportScreen() {
           <p className="text-rose-200 text-xs mt-1">Spent this month</p>
         </div>
         
-        <div className="flex-1 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 shadow-lg">
+        <div className="flex-1 bg-linear-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 shadow-lg">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp size={18} className="text-emerald-200" />
             <span className="text-emerald-100 text-sm font-medium">Income</span>
