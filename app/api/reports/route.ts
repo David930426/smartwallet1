@@ -1,224 +1,96 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getConnection, sql } from "@/lib/db";
-import { Report, DashboardSummary, ApiResponse } from "@/index";
+import { NextResponse } from "next/server";
+import { DbConnect } from "@/lib/db";
+import sql from "mssql";
+import { cookies } from "next/headers";
 
-// GET /api/reports - Get reports or dashboard summary
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("user_id");
-    const type = searchParams.get("type"); // 'dashboard', 'monthly', or 'yearly'
-    const month = searchParams.get("month");
-    const year = searchParams.get("year") || new Date().getFullYear().toString();
+    const cookieStore = await cookies();
+    const user = cookieStore.get("userId");
 
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "user_id is required" },
-        { status: 400 }
-      );
+    if (!user?.value) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const pool = await getConnection();
-
-    // Dashboard summary - total balance, income, expense, and recent transactions
-    if (type === "dashboard" || !type) {
-      const summaryResult = await pool
-        .request()
-        .input("userId", sql.Int, parseInt(userId))
-        .query(`
-          SELECT 
-            COALESCE(SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE 0 END), 0) as total_income,
-            COALESCE(SUM(CASE WHEN transaction_type = 'expense' THEN amount ELSE 0 END), 0) as total_expense
-          FROM Transactions
-          WHERE user_id = @userId
-        `);
-
-      const recentTransactions = await pool
-        .request()
-        .input("userId", sql.Int, parseInt(userId))
-        .query(`
-          SELECT TOP 10
-            t.transaction_id,
-            t.user_id,
-            t.category_id,
-            t.amount,
-            t.transaction_type,
-            t.transaction_date,
-            t.description,
-            c.category_name,
-            c.icon
-          FROM Transactions t
-          INNER JOIN Categories c ON t.category_id = c.category_id
-          WHERE t.user_id = @userId
-          ORDER BY t.transaction_date DESC, t.created_at DESC
-        `);
-
-      const summary = summaryResult.recordset[0];
-      const dashboardData: DashboardSummary = {
-        total_balance: summary.total_income - summary.total_expense,
-        total_income: summary.total_income,
-        total_expense: summary.total_expense,
-        recent_transactions: recentTransactions.recordset,
-      };
-
-      return NextResponse.json({ success: true, data: dashboardData });
-    }
-
-    // Monthly report
-    if (type === "monthly" && month) {
-      const result = await pool
-        .request()
-        .input("userId", sql.Int, parseInt(userId))
-        .input("month", sql.Int, parseInt(month))
-        .input("year", sql.Int, parseInt(year))
-        .query(`
-          SELECT 
-            c.category_name,
-            c.icon,
-            c.category_type,
-            COALESCE(SUM(t.amount), 0) as total_amount,
-            COUNT(t.transaction_id) as transaction_count
-          FROM Categories c
-          LEFT JOIN Transactions t ON c.category_id = t.category_id 
-            AND t.user_id = @userId
-            AND MONTH(t.transaction_date) = @month
-            AND YEAR(t.transaction_date) = @year
-          GROUP BY c.category_id, c.category_name, c.icon, c.category_type
-          ORDER BY total_amount DESC
-        `);
-
-      const totalSummary = await pool
-        .request()
-        .input("userId", sql.Int, parseInt(userId))
-        .input("month", sql.Int, parseInt(month))
-        .input("year", sql.Int, parseInt(year))
-        .query(`
-          SELECT 
-            COALESCE(SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE 0 END), 0) as total_income,
-            COALESCE(SUM(CASE WHEN transaction_type = 'expense' THEN amount ELSE 0 END), 0) as total_expense
-          FROM Transactions
-          WHERE user_id = @userId
-            AND MONTH(transaction_date) = @month
-            AND YEAR(transaction_date) = @year
-        `);
-
-      return NextResponse.json({
-        success: true,
-        data: {
-          month: parseInt(month),
-          year: parseInt(year),
-          summary: totalSummary.recordset[0],
-          categories: result.recordset,
-        },
-      });
-    }
-
-    // Yearly report
-    if (type === "yearly") {
-      const result = await pool
-        .request()
-        .input("userId", sql.Int, parseInt(userId))
-        .input("year", sql.Int, parseInt(year))
-        .query(`
-          SELECT 
-            MONTH(transaction_date) as month,
-            COALESCE(SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE 0 END), 0) as total_income,
-            COALESCE(SUM(CASE WHEN transaction_type = 'expense' THEN amount ELSE 0 END), 0) as total_expense
-          FROM Transactions
-          WHERE user_id = @userId
-            AND YEAR(transaction_date) = @year
-          GROUP BY MONTH(transaction_date)
-          ORDER BY month
-        `);
-
-      return NextResponse.json({
-        success: true,
-        data: {
-          year: parseInt(year),
-          monthly_data: result.recordset,
-        },
-      });
-    }
-
-    return NextResponse.json(
-      { success: false, error: "Invalid report type" },
-      { status: 400 }
-    );
-  } catch (error) {
-    console.error("Error fetching reports:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch reports" },
-      { status: 500 }
-    );
-  }
-}
-
-// POST /api/reports - Generate and save a monthly report
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { user_id, month, year } = body;
-
-    if (!user_id || !month || !year) {
-      return NextResponse.json(
-        { success: false, error: "user_id, month, and year are required" },
-        { status: 400 }
-      );
-    }
-
-    const pool = await getConnection();
-
-    // Calculate totals
-    const totals = await pool
-      .request()
-      .input("userId", sql.Int, user_id)
-      .input("month", sql.Int, month)
-      .input("year", sql.Int, year)
+    const pool = await DbConnect();
+    
+    // Get current month's income and expense totals
+    const summaryResult = await pool.request()
+      .input("userId", sql.NVarChar, user.value)
       .query(`
         SELECT 
-          COALESCE(SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE 0 END), 0) as total_income,
-          COALESCE(SUM(CASE WHEN transaction_type = 'expense' THEN amount ELSE 0 END), 0) as total_expense
+          COALESCE(SUM(CASE WHEN transaction_type = 'Income' THEN amount ELSE 0 END), 0) as total_income,
+          COALESCE(SUM(CASE WHEN transaction_type = 'Expense' THEN amount ELSE 0 END), 0) as total_expense
         FROM Transactions
         WHERE user_id = @userId
-          AND MONTH(transaction_date) = @month
-          AND YEAR(transaction_date) = @year
+          AND MONTH(transaction_date) = MONTH(GETDATE())
+          AND YEAR(transaction_date) = YEAR(GETDATE())
       `);
 
-    const { total_income, total_expense } = totals.recordset[0];
-
-    // Upsert report
-    const result = await pool
-      .request()
-      .input("userId", sql.Int, user_id)
-      .input("month", sql.Int, month)
-      .input("year", sql.Int, year)
-      .input("totalIncome", sql.Decimal(12, 2), total_income)
-      .input("totalExpense", sql.Decimal(12, 2), total_expense)
-      .query<Report>(`
-        MERGE INTO Reports AS target
-        USING (SELECT @userId as user_id, @month as month, @year as year) AS source
-        ON target.user_id = source.user_id 
-          AND target.month = source.month 
-          AND target.year = source.year
-        WHEN MATCHED THEN
-          UPDATE SET 
-            total_income = @totalIncome, 
-            total_expense = @totalExpense
-        WHEN NOT MATCHED THEN
-          INSERT (user_id, month, year, total_income, total_expense)
-          VALUES (@userId, @month, @year, @totalIncome, @totalExpense)
-        OUTPUT INSERTED.*;
+    // Get expense breakdown by category (for pie chart)
+    const categoryResult = await pool.request()
+      .input("userId", sql.NVarChar, user.value)
+      .query(`
+        SELECT 
+          c.category_name as label,
+          COALESCE(SUM(t.amount), 0) as amount
+        FROM Categories c
+        LEFT JOIN Transactions t ON c.category_id = t.category_id 
+          AND t.user_id = @userId
+          AND t.transaction_type = 'Expense'
+          AND MONTH(t.transaction_date) = MONTH(GETDATE())
+          AND YEAR(t.transaction_date) = YEAR(GETDATE())
+        WHERE c.category_type = 'Expense'
+        GROUP BY c.category_id, c.category_name
+        HAVING COALESCE(SUM(t.amount), 0) > 0
+        ORDER BY amount DESC
       `);
 
-    return NextResponse.json(
-      { success: true, data: result.recordset[0] },
-      { status: 201 }
-    );
+    // Get recent transactions for summary
+    const transactionsResult = await pool.request()
+      .input("userId", sql.NVarChar, user.value)
+      .query(`
+        SELECT TOP 10
+          t.description as label,
+          t.transaction_type as type,
+          t.amount,
+          t.transaction_date,
+          c.category_name
+        FROM Transactions t
+        JOIN Categories c ON t.category_id = c.category_id
+        WHERE t.user_id = @userId
+          AND MONTH(t.transaction_date) = MONTH(GETDATE())
+          AND YEAR(t.transaction_date) = YEAR(GETDATE())
+        ORDER BY t.transaction_date DESC
+      `);
+
+    const summary = summaryResult.recordset[0];
+    const totalExpense = Number(summary.total_expense) || 0;
+    
+    // Calculate percentages for pie chart
+    const colors = ["#3B82F6", "#F59E0B", "#14B8A6", "#EC4899", "#8B5CF6", "#EF4444", "#06B6D4"];
+    const pieData = categoryResult.recordset.map((item: any, index: number) => ({
+      label: item.label,
+      amount: Number(item.amount) || 0,
+      percent: totalExpense > 0 ? Math.round((Number(item.amount) / totalExpense) * 100) : 0,
+      color: colors[index % colors.length],
+    }));
+
+    // Format transactions for summary
+    const transactions = transactionsResult.recordset.map((item: any) => ({
+      label: item.label || item.category_name,
+      type: item.type === 'Income' ? 'income' : 'outcome',
+      amount: Number(item.amount) || 0,
+    }));
+
+    return NextResponse.json({
+      total_income: Number(summary.total_income) || 0,
+      total_expense: totalExpense,
+      pieData,
+      transactions,
+    });
   } catch (error) {
-    console.error("Error generating report:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to generate report" },
-      { status: 500 }
-    );
+    console.error("Error fetching report data:", error);
+    return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
   }
 }
