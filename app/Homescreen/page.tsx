@@ -1,15 +1,16 @@
-"use client"
+"use client";
 import { Icon } from "@/components/icon";
 // import React from 'react';
 // import { getBalanceSummary, getRecentTransactions } from "@/lib/data";
 import { getBalanceSummary, getRecentTransactions } from "@/lib/data";
+import { logout } from "@/lib/login";
 import {
   Wallet,
-  MoreHorizontal,
   ArrowDownLeft,
   ArrowUpRight,
   Plus,
   ChevronDown,
+  ArrowLeftSquareIcon,
 } from "lucide-react";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -34,8 +35,8 @@ export default function HomeScreen() {
   const [transactions, setTransaction] = useState<null | Transaction[]>(null);
   useEffect(() => {
     const income = async () => {
-      const getSummary = await getBalanceSummary("U001");
-      const getTransaction = await getRecentTransactions("U001");
+      const getSummary = await getBalanceSummary();
+      const getTransaction = await getRecentTransactions();
       setSummary(getSummary);
       setTransaction(getTransaction);
     };
@@ -54,8 +55,13 @@ export default function HomeScreen() {
             My Wallet
           </h1>
         </div>
-        <button className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center hover:bg-white/30 transition-colors">
-          <MoreHorizontal className="text-white" size={20} />
+        <button
+          className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center hover:bg-red-500 hover:cursor-pointer transition-colors"
+          onClick={() => {
+            logout();
+          }}
+        >
+          <ArrowLeftSquareIcon className="text-white" size={20} />
         </button>
       </div>
 
@@ -123,40 +129,41 @@ export default function HomeScreen() {
 
       {/* Transactions */}
       <div className="space-y-3">
-        {transactions ? transactions.map((tx, index) => (
-          <div
-            key={tx.transaction_id}
-            className="bg-white rounded-2xl p-4 shadow-lg shadow-black/5 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
-            <div
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
-                tx.transaction_type === "Income"
-                  ? "bg-linear-to-br from-emerald-100 to-teal-100"
-                  : "bg-linear-to-br from-rose-100 to-pink-100"
-              }`}
-            >
-              {Icon(tx.icon)}
-            </div>
-            <div className="flex-1">
-              <p className="font-bold text-gray-900">
-                NT${tx.amount.toLocaleString()}
-              </p>
-              <p className="text-gray-500 text-sm">{tx.category_name}</p>
-            </div>
-            <div
-              className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                tx.transaction_type === "Income"
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-rose-100 text-rose-700"
-              }`}
-            >
-              {tx.transaction_type === "Income" ? "Income" : "Expense"}
-            </div>
-          </div>
-        )) : ""}
+        {transactions
+          ? transactions.map((tx, index) => (
+              <div
+                key={tx.transaction_id}
+                className="bg-white rounded-2xl p-4 shadow-lg shadow-black/5 flex items-center gap-4 hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
+                    tx.transaction_type === "Income"
+                      ? "bg-linear-to-br from-emerald-100 to-teal-100"
+                      : "bg-linear-to-br from-rose-100 to-pink-100"
+                  }`}
+                >
+                  {Icon(tx.icon)}
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-gray-900">
+                    NT${tx.amount.toLocaleString()}
+                  </p>
+                  <p className="text-gray-500 text-sm">{tx.category_name}</p>
+                </div>
+                <div
+                  className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                    tx.transaction_type === "Income"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-rose-100 text-rose-700"
+                  }`}
+                >
+                  {tx.transaction_type === "Income" ? "Income" : "Expense"}
+                </div>
+              </div>
+            ))
+          : ""}
       </div>
     </div>
   );
 }
-

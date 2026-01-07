@@ -40,7 +40,7 @@ export default function StatsScreen() {
   const maxCityAmount = Math.max(...cityComparison.map((c) => c.amount));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 p-4 pb-24">
+    <div className="min-h-screen bg-linear-to-br from-emerald-500 via-emerald-600 to-teal-700 p-4 pb-24">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6 pt-2">
         <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
@@ -68,7 +68,7 @@ export default function StatsScreen() {
           {cityExpenses.map((item, index) => (
             <div key={index} className="flex-1 flex flex-col items-center">
               <div
-                className="w-full bg-gradient-to-t from-gray-800 to-gray-600 rounded-t-lg transition-all duration-500 hover:from-emerald-600 hover:to-emerald-400"
+                className="w-full bg-linear-to-t from-gray-800 to-gray-600 rounded-t-lg transition-all duration-500 hover:from-emerald-600 hover:to-emerald-400"
                 style={{
                   height: `${(item.amount / maxExpense) * 100}%`,
                   minHeight: "8px",
@@ -99,7 +99,7 @@ export default function StatsScreen() {
           {cityComparison.map((city, index) => (
             <div key={index} className="flex-1 flex flex-col items-center">
               <div
-                className="w-full bg-gradient-to-t from-gray-800 to-gray-600 rounded-t-lg transition-all duration-500 hover:from-teal-600 hover:to-teal-400 relative group"
+                className="w-full bg-linear-to-t from-gray-800 to-gray-600 rounded-t-lg transition-all duration-500 hover:from-teal-600 hover:to-teal-400 relative group"
                 style={{
                   height: `${(city.amount / maxCityAmount) * 100}%`,
                   minHeight: "16px",
